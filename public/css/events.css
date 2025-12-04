@@ -1,0 +1,618 @@
+/* イベント関連スタイル */
+
+/* ======================================
+   共通スタイル
+====================================== */
+.header-nav {
+    margin-top: 1rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: #3388c1;
+    border: 2px solid #3388c1;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: #3388c1;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(51, 136, 193, 0.3);
+}
+
+.btn-event {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-event:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.success-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.event-info-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px dashed #e0e0e0;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+}
+
+.loading-spinner i {
+    font-size: 3rem;
+    color: #3388c1;
+}
+
+.no-events {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    gap: 1.5rem;
+}
+
+.no-events i {
+    font-size: 4rem;
+    color: #ccc;
+}
+
+.no-events p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* ======================================
+   イベント一覧ページ
+====================================== */
+.events-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.section-description {
+    font-size: 1rem;
+    color: #666;
+}
+
+.event-section {
+    margin-bottom: 3rem;
+}
+
+.event-section-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #3388c1;
+    display: inline-block;
+}
+
+.event-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.event-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.event-card.clickable {
+    cursor: pointer;
+}
+
+.event-card.clickable:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.event-card.not-clickable {
+    opacity: 0.7;
+}
+
+.event-card-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.event-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-card-content {
+    padding: 1.5rem;
+}
+
+.event-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.event-card-title {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+    flex: 1;
+}
+
+.event-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.event-badge.new {
+    background: #ff6b6b;
+    color: white;
+}
+
+.event-badge.recruiting {
+    background: #51cf66;
+    color: white;
+}
+
+.event-badge.full {
+    background: #868e96;
+    color: white;
+}
+
+.event-badge.closed {
+    background: #868e96;
+    color: white;
+}
+
+.event-badge.completed {
+    background: #adb5bd;
+    color: white;
+}
+
+.event-card-description {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.event-card-info {
+    margin-bottom: 1.5rem;
+}
+
+.event-card-info p {
+    margin: 0.5rem 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.event-card-info i {
+    color: #3388c1;
+    width: 20px;
+}
+
+.slots-available {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.slots-warning {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.btn-event-detail {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: #3388c1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-event-detail:hover {
+    background: #2874a6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(51, 136, 193, 0.3);
+}
+
+.event-closed-notice {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* ======================================
+   イベント詳細ページ
+====================================== */
+.event-detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.event-detail {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-detail-header {
+    margin-bottom: 2rem;
+}
+
+.event-badges {
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-badge.new {
+    background: #ff6b6b;
+    color: white;
+}
+
+.status-badge.recruiting {
+    background: #51cf66;
+    color: white;
+}
+
+.status-badge.closed {
+    background: #868e96;
+    color: white;
+}
+
+.status-badge.completed {
+    background: #adb5bd;
+    color: white;
+}
+
+.event-name {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.event-image-container {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.event-image-container img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.event-description {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.event-detail-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #3388c1;
+}
+
+.info-card h3 {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-card i {
+    color: #3388c1;
+}
+
+.info-card p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* ======================================
+   予約フォーム
+====================================== */
+.reservation-form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.event-reservation-form .form-section {
+    margin-bottom: 2rem;
+}
+
+.participant-counters {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.counter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.counter-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.counter-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #3388c1;
+    background: white;
+    color: #3388c1;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.counter-btn:hover {
+    background: #3388c1;
+    color: white;
+    transform: scale(1.1);
+}
+
+.counter-input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.counter-price {
+    color: #3388c1;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.price-summary {
+    background: #f0f8ff;
+    border: 2px solid #3388c1;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.price-summary h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.price-breakdown {
+    margin-bottom: 1rem;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: #555;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 2px solid #3388c1;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3388c1;
+}
+
+.closed-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.closed-message i {
+    font-size: 4rem;
+    color: #868e96;
+    margin-bottom: 1rem;
+}
+
+.closed-message h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.closed-message p {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.error-message i {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.error-message p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+/* ======================================
+   レスポンシブ
+====================================== */
+@media (max-width: 768px) {
+    .event-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-detail-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .participant-counters {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .event-name {
+        font-size: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+}
