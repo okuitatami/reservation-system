@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Multi-tenant reservation system for tatami shops",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,7 +16,8 @@
     "@supabase/supabase-js": "^2.39.0",
     "next": "14.0.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vercel": "^48.12.1"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
