@@ -8,13 +8,19 @@ interface AdminPageProps {
 }
 
 export default function AdminPage({ tenant, error }: AdminPageProps) {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'events' | 'settings'>('reservations')
+  const [activeTab, setActiveTab] = useState<'reservations' | 'events' | 'schedule' | 'settings'>('reservations')
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [eventReservations, setEventReservations] = useState<EventReservation[]>([])
+  const [availableSlots, setAvailableSlots] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  
+  // 受付可能日設定用の状態
+  const [selectedDate, setSelectedDate] = useState('')
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([])
+  const [selectedReservationType, setSelectedReservationType] = useState<'all' | 'estimate' | 'workshop' | 'visit'>('all')
 
   // 簡易認証（実運用では適切な認証システムを使用してください）
   const handleLogin = (e: React.FormEvent) => {
@@ -61,6 +67,15 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
           .order('event_date', { ascending: true })
         
         setEvents(data || [])
+      } else if (activeTab === 'schedule') {
+        const { data } = await supabase
+          .from('available_slots')
+          .select('*')
+          .eq('tenant_id', tenant.id)
+          .order('date', { ascending: false })
+          .order('time', { ascending: true })
+        
+        setAvailableSlots(data || [])
       }
     } catch (err) {
       console.error('データ取得エラー:', err)
@@ -95,6 +110,81 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
       alert('更新に失敗しました')
     }
   }
+
+  // 受付可能日を追加
+  const addAvailableSlots = async () => {
+    if (!tenant || !selectedDate || selectedTimes.length === 0) {
+      alert('日付と時間を選択してください')
+      return
+    }
+
+    try {
+      const slotsToAdd = selectedTimes.map(time => ({
+        tenant_id: tenant.id,
+        reservation_type: selectedReservationType,
+        date: selectedDate,
+        time: time,
+        is_available: true
+      }))
+
+      const { error } = await supabase
+        .from('available_slots')
+        .insert(slotsToAdd)
+
+      if (error) throw error
+
+      alert(`${selectedTimes.length}件の受付可能時間を追加しました`)
+      setSelectedDate('')
+      setSelectedTimes([])
+      fetchData()
+    } catch (err) {
+      console.error('追加エラー:', err)
+      alert('追加に失敗しました')
+    }
+  }
+
+  // 受付可能日を削除
+  const deleteAvailableSlot = async (id: string) => {
+    if (!confirm('この受付可能時間を削除しますか？')) return
+
+    try {
+      const { error } = await supabase
+        .from('available_slots')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      alert('削除しました')
+      fetchData()
+    } catch (err) {
+      alert('削除に失敗しました')
+    }
+  }
+
+  // 時間スロットの選択/解除
+  const toggleTimeSlot = (time: string) => {
+    if (selectedTimes.includes(time)) {
+      setSelectedTimes(selectedTimes.filter(t => t !== time))
+    } else {
+      setSelectedTimes([...selectedTimes, time])
+    }
+  }
+
+  // 利用可能な時間スロット（9:00〜18:00、30分刻み）
+  const generateTimeSlots = () => {
+    const slots = []
+    for (let hour = 9; hour <= 18; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        if (hour === 18 && minute > 0) break
+        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+        slots.push(time)
+      }
+    }
+    return slots
+  }
+
+  const timeSlots = generateTimeSlots()
 
   if (error || !tenant) {
     return (
@@ -201,6 +291,21 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
             }}
           >
             イベント管理
+          </button>
+          <button
+            onClick={() => setActiveTab('schedule')}
+            style={{
+              padding: '12px 24px',
+              background: activeTab === 'schedule' ? '#4CAF50' : 'transparent',
+              color: activeTab === 'schedule' ? 'white' : '#333',
+              border: 'none',
+              borderBottom: activeTab === 'schedule' ? '2px solid #4CAF50' : 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: activeTab === 'schedule' ? 'bold' : 'normal'
+            }}
+          >
+            受付可能日設定
           </button>
           <button
             onClick={() => setActiveTab('settings')}
@@ -387,6 +492,191 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'schedule' && (
+              <div>
+                <h2 style={{ marginBottom: '30px' }}>受付可能日設定</h2>
+                
+                <div style={{
+                  background: 'white',
+                  padding: '30px',
+                  borderRadius: '8px',
+                  marginBottom: '30px'
+                }}>
+                  <h3 style={{ marginBottom: '20px' }}>新しい受付可能日時を追加</h3>
+                  
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                      日付を選択
+                    </label>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                      予約種別
+                    </label>
+                    <select
+                      value={selectedReservationType}
+                      onChange={(e) => setSelectedReservationType(e.target.value as any)}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        fontSize: '16px'
+                      }}
+                    >
+                      <option value="all">すべて（見積・体験・来店）</option>
+                      <option value="estimate">見積依頼のみ</option>
+                      <option value="workshop">見学・体験のみ</option>
+                      <option value="visit">来店予約のみ</option>
+                    </select>
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '12px', fontWeight: 'bold' }}>
+                      受付可能時間を選択（複数選択可）
+                    </label>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                      gap: '10px',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      padding: '10px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px'
+                    }}>
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => toggleTimeSlot(time)}
+                          style={{
+                            padding: '10px',
+                            background: selectedTimes.includes(time) ? '#4CAF50' : 'white',
+                            color: selectedTimes.includes(time) ? 'white' : '#333',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: selectedTimes.includes(time) ? 'bold' : 'normal'
+                          }}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                    <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                      選択中: {selectedTimes.length}件
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={addAvailableSlots}
+                    disabled={!selectedDate || selectedTimes.length === 0}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: (!selectedDate || selectedTimes.length === 0) ? '#ccc' : '#4CAF50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: (!selectedDate || selectedTimes.length === 0) ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    受付可能日時を追加
+                  </button>
+                </div>
+
+                <div style={{
+                  background: 'white',
+                  padding: '30px',
+                  borderRadius: '8px'
+                }}>
+                  <h3 style={{ marginBottom: '20px' }}>登録済みの受付可能日時</h3>
+                  {availableSlots.length === 0 ? (
+                    <p style={{ color: '#666' }}>登録されている受付可能日時がありません</p>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {/* 日付ごとにグループ化 */}
+                      {Object.entries(
+                        availableSlots.reduce((acc: any, slot: any) => {
+                          if (!acc[slot.date]) acc[slot.date] = []
+                          acc[slot.date].push(slot)
+                          return acc
+                        }, {})
+                      ).map(([date, slots]: [string, any]) => (
+                        <div key={date} style={{
+                          padding: '15px',
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px'
+                        }}>
+                          <h4 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>
+                            📅 {date}
+                          </h4>
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                            gap: '8px'
+                          }}>
+                            {slots.map((slot: any) => (
+                              <div key={slot.id} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px 12px',
+                                background: '#f5f5f5',
+                                borderRadius: '4px'
+                              }}>
+                                <div>
+                                  <div style={{ fontWeight: 'bold' }}>{slot.time}</div>
+                                  <div style={{ fontSize: '12px', color: '#666' }}>
+                                    {slot.reservation_type === 'all' ? 'すべて' :
+                                     slot.reservation_type === 'estimate' ? '見積' :
+                                     slot.reservation_type === 'workshop' ? '体験' :
+                                     slot.reservation_type === 'visit' ? '来店' : slot.reservation_type}
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => deleteAvailableSlot(slot.id)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    background: '#f44336',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  削除
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
