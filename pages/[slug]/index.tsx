@@ -333,7 +333,7 @@ export default function ReservationPage({ tenant, error }: Props) {
 
         {/* フッター */}
         <footer className="footer">
-          <p>&copy; 1958 {tenant.tenant_name}. All rights reserved.</p>
+          <p>&copy; {tenant.slug === 'ikeda-tatami' ? '1964' : '1958'} {tenant.tenant_name}. All rights reserved.</p>
           {tenant.email && (
             <p><a href={`https://${tenant.slug}.com/`} target="_blank" rel="noopener">公式ウェブサイト</a></p>
           )}

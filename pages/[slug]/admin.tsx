@@ -9,6 +9,9 @@ interface AdminPageProps {
 
 export default function AdminPage({ tenant, error }: AdminPageProps) {
   const [activeTab, setActiveTab] = useState<'reservations' | 'events' | 'schedule' | 'settings'>('reservations')
+  
+  // 池田畳店はイベント機能を非表示
+  const showEvents = tenant?.slug !== 'ikeda-tatami'
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [eventReservations, setEventReservations] = useState<EventReservation[]>([])
