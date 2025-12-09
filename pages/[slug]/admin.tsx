@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GetServerSideProps } from 'next'
+import Head from 'next/head'
 import { supabase, Tenant, Reservation, Event, EventReservation } from '@/lib/supabase'
 
 interface AdminPageProps {
@@ -248,8 +249,13 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
-      <header style={{
+    <>
+      <Head>
+        <title>{tenant.tenant_name} - 管理画面</title>
+        {tenant.slug === 'ikeda-tatami' && <link rel="stylesheet" href="/css/ikeda-tatami-admin-theme.css" />}
+      </Head>
+      <div style={{ minHeight: '100vh', background: '#f5f5f5' }} data-tenant={tenant.slug}>
+        <header style={{
         background: 'white',
         borderBottom: '1px solid #e0e0e0',
         padding: '20px',
@@ -280,21 +286,23 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
           >
             予約一覧
           </button>
-          <button
-            onClick={() => setActiveTab('events')}
-            style={{
-              padding: '12px 24px',
-              background: activeTab === 'events' ? '#4CAF50' : 'transparent',
-              color: activeTab === 'events' ? 'white' : '#333',
-              border: 'none',
-              borderBottom: activeTab === 'events' ? '2px solid #4CAF50' : 'none',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: activeTab === 'events' ? 'bold' : 'normal'
-            }}
-          >
-            イベント管理
-          </button>
+          {showEvents && (
+            <button
+              onClick={() => setActiveTab('events')}
+              style={{
+                padding: '12px 24px',
+                background: activeTab === 'events' ? '#4CAF50' : 'transparent',
+                color: activeTab === 'events' ? 'white' : '#333',
+                border: 'none',
+                borderBottom: activeTab === 'events' ? '2px solid #4CAF50' : 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: activeTab === 'events' ? 'bold' : 'normal'
+              }}
+            >
+              イベント管理
+            </button>
+          )}
           <button
             onClick={() => setActiveTab('schedule')}
             style={{
@@ -737,7 +745,8 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

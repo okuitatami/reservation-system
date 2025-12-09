@@ -1,0 +1,69 @@
+/* 池田畳店 管理画面専用テーマカラー */
+
+/* ヘッダー背景 */
+[data-tenant="ikeda-tatami"] header {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+    border-bottom: 1px solid #b8965a !important;
+}
+
+/* アクティブなタブ */
+[data-tenant="ikeda-tatami"] button[style*="background: rgb(76, 175, 80)"] {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+}
+
+[data-tenant="ikeda-tatami"] button[style*="border-bottom: 2px solid rgb(76, 175, 80)"] {
+    border-bottom-color: #c9a869 !important;
+}
+
+/* ボタンのホバー効果 */
+[data-tenant="ikeda-tatami"] button:hover {
+    background-color: #faf5eb !important;
+}
+
+/* 確認済みボタン */
+[data-tenant="ikeda-tatami"] button[style*="background: rgb(76, 175, 80)"][style*="padding: 8px"] {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+}
+
+/* 受付可能日設定 - 選択されたボタン */
+[data-tenant="ikeda-tatami"] button[style*="background: rgb(76, 175, 80)"][style*="padding: 10px"] {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+}
+
+/* 受付可能日追加ボタン */
+[data-tenant="ikeda-tatami"] button[style*="background: rgb(76, 175, 80)"][style*="width: 100%"] {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+}
+
+/* ログインボタン */
+[data-tenant="ikeda-tatami"] button[type="submit"][style*="background: rgb(76, 175, 80)"] {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+}
+
+/* ステータスバッジ - 確認済み */
+[data-tenant="ikeda-tatami"] span[style*="background: rgb(76, 175, 80)"] {
+    background: #c9a869 !important;
+}
+
+/* フォーカス状態のインプット */
+[data-tenant="ikeda-tatami"] input:focus,
+[data-tenant="ikeda-tatami"] textarea:focus,
+[data-tenant="ikeda-tatami"] select:focus {
+    border-color: #c9a869 !important;
+    box-shadow: 0 0 0 3px rgba(201, 168, 105, 0.1) !important;
+}
+
+/* 背景色 */
+body:has([data-tenant="ikeda-tatami"]) {
+    background: #faf5eb !important;
+}
+
+/* カードの背景 */
+[data-tenant="ikeda-tatami"] > div > div[style*="background: white"] {
+    background: #fffef9 !important;
+}
+
+/* ホバーエフェクト */
+[data-tenant="ikeda-tatami"] button:not([disabled]):hover {
+    opacity: 0.9;
+}
