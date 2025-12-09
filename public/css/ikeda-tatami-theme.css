@@ -1,0 +1,119 @@
+/* 池田畳店専用テーマカラー */
+/* クリーム色ベースのデザイン */
+
+body[data-tenant="ikeda-tatami"] {
+    background: linear-gradient(135deg, #f5e6d3 0%, #faf5eb 100%);
+}
+
+/* ヘッダー */
+body[data-tenant="ikeda-tatami"] .header {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%);
+}
+
+/* ステップインジケーター */
+body[data-tenant="ikeda-tatami"] .step.active .step-number {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%);
+}
+
+body[data-tenant="ikeda-tatami"] .step.completed .step-number {
+    background: #c9a869;
+}
+
+/* 予約種別カード */
+body[data-tenant="ikeda-tatami"] .type-card input:checked ~ .type-card-content {
+    background: linear-gradient(135deg, #f5e6d3 0%, #f0ddc4 100%);
+    border-color: #c9a869;
+}
+
+body[data-tenant="ikeda-tatami"] .type-card:hover .type-card-content {
+    border-color: #c9a869;
+    box-shadow: 0 4px 12px rgba(201, 168, 105, 0.2);
+}
+
+body[data-tenant="ikeda-tatami"] .type-card-content i {
+    color: #c9a869;
+}
+
+/* ワークショップカード */
+body[data-tenant="ikeda-tatami"] .workshop-card input:checked ~ .workshop-card-content {
+    background: linear-gradient(135deg, #f5e6d3 0%, #f0ddc4 100%);
+    border-color: #c9a869;
+}
+
+body[data-tenant="ikeda-tatami"] .workshop-card:hover .workshop-card-content {
+    border-color: #c9a869;
+    box-shadow: 0 4px 12px rgba(201, 168, 105, 0.2);
+}
+
+body[data-tenant="ikeda-tatami"] .workshop-price {
+    color: #c9a869;
+}
+
+/* ボタン */
+body[data-tenant="ikeda-tatami"] .btn-primary,
+body[data-tenant="ikeda-tatami"] .btn-submit {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%);
+}
+
+body[data-tenant="ikeda-tatami"] .btn-primary:hover,
+body[data-tenant="ikeda-tatami"] .btn-submit:hover {
+    background: linear-gradient(135deg, #b8965a 0%, #c9a869 100%);
+}
+
+body[data-tenant="ikeda-tatami"] .btn-secondary {
+    border-color: #c9a869;
+    color: #c9a869;
+}
+
+body[data-tenant="ikeda-tatami"] .btn-secondary:hover {
+    background-color: #f5e6d3;
+}
+
+/* カレンダー */
+body[data-tenant="ikeda-tatami"] .calendar-day.selected,
+body[data-tenant="ikeda-tatami"] .calendar-day.has-slots:hover {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%);
+}
+
+body[data-tenant="ikeda-tatami"] .time-slot.selected {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%);
+}
+
+body[data-tenant="ikeda-tatami"] .time-slot:hover {
+    border-color: #c9a869;
+    background-color: #faf5eb;
+}
+
+/* 確認画面 */
+body[data-tenant="ikeda-tatami"] .confirmation-section h3 {
+    border-left-color: #c9a869;
+}
+
+/* フォームフィールドのフォーカス */
+body[data-tenant="ikeda-tatami"] input:focus,
+body[data-tenant="ikeda-tatami"] textarea:focus,
+body[data-tenant="ikeda-tatami"] select:focus {
+    border-color: #c9a869;
+    box-shadow: 0 0 0 3px rgba(201, 168, 105, 0.1);
+}
+
+/* 準備中表示 */
+body[data-tenant="ikeda-tatami"] .workshop-coming-soon {
+    background: linear-gradient(135deg, #f5e6d3 0%, #f0ddc4 100%);
+    border: 2px dashed #c9a869;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+body[data-tenant="ikeda-tatami"] .workshop-coming-soon h3 {
+    color: #c9a869;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+body[data-tenant="ikeda-tatami"] .workshop-coming-soon p {
+    color: #8b7355;
+    font-size: 1rem;
+}

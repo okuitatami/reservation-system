@@ -44,11 +44,12 @@ export default function ReservationPage({ tenant, error }: Props) {
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
         <link rel="stylesheet" href="/css/style.css" />
+        {tenant.slug === 'ikeda-tatami' && <link rel="stylesheet" href="/css/ikeda-tatami-theme.css" />}
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
         <script src="/js/script.js" defer></script>
       </Head>
 
-      <div className="container">
+      <div className="container" data-tenant={tenant.slug}>
         {/* ヘッダー */}
         <header className="header">
           <div className="header-content">
@@ -110,13 +111,15 @@ export default function ReservationPage({ tenant, error }: Props) {
                       <p>店舗にご来店されたい方</p>
                     </div>
                   </label>
-                  <a href={eventsUrl} className="type-card type-card-link">
-                    <div className="type-card-content">
-                      <i className="fas fa-calendar-star"></i>
-                      <h3>イベント</h3>
-                      <p>開催予定のイベントを見る</p>
-                    </div>
-                  </a>
+                  {tenant.slug !== 'ikeda-tatami' && (
+                    <a href={eventsUrl} className="type-card type-card-link">
+                      <div className="type-card-content">
+                        <i className="fas fa-calendar-star"></i>
+                        <h3>イベント</h3>
+                        <p>開催予定のイベントを見る</p>
+                      </div>
+                    </a>
+                  )}
                 </div>
                 
                 <div className="form-actions">
@@ -154,9 +157,18 @@ export default function ReservationPage({ tenant, error }: Props) {
                 {/* ワークショップ選択（ワークショップの場合のみ） */}
                 <div id="workshopSection" className="form-section" style={{display: 'none'}}>
                   <h3 className="section-title">ワークショップ種類</h3>
-                  <div className="form-group">
-                    <label className="required">体験内容</label>
-                    <div className="radio-group">
+                  
+                  {tenant.slug === 'ikeda-tatami' && (
+                    <div className="workshop-coming-soon">
+                      <h3>体験メニュー準備中</h3>
+                      <p>現在、体験メニューを準備しております。<br/>見学のみの予約は可能です。</p>
+                    </div>
+                  )}
+                  
+                  {tenant.slug !== 'ikeda-tatami' && (
+                    <div className="form-group">
+                      <label className="required">体験内容</label>
+                      <div className="radio-group">
                       <label className="radio-card">
                         <input type="radio" name="workshop_type" value="mini_tatami" />
                         <div className="radio-card-content">
@@ -187,8 +199,11 @@ export default function ReservationPage({ tenant, error }: Props) {
                       </label>
                     </div>
                   </div>
+                  )}
 
                   {/* ミニ畳のオプション */}
+                  {tenant.slug !== 'ikeda-tatami' && (
+                  <>
                   <div id="miniTatamiOptions" className="form-group options-group" style={{display: 'none'}}>
                     <label className="required">作成方法</label>
                     <div className="radio-inline-group">
@@ -233,6 +248,8 @@ export default function ReservationPage({ tenant, error }: Props) {
                     </div>
                     <p className="note-text"><i className="fas fa-info-circle"></i> 小学3年生以下のお子様は保護者の方と必ずご一緒に作業してください。</p>
                   </div>
+                  </>
+                  )}
                 </div>
 
                 {/* 依頼内容・懸念点 */}
