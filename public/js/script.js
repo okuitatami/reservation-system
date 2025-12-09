@@ -750,17 +750,39 @@ async function sendEmails(reservationData) {
 
 // LINE通知送信
 async function sendLineNotification(reservationData) {
-    const WORKER_URL = 'https://okui-tatami-line-notify.okuitatami.workers.dev';
+    const API_ENDPOINT = '/api/send-line-notification';
     
     console.log('📱 LINE通知送信開始...');
     
     try {
-        const response = await fetch(WORKER_URL, {
+        // TENANT_INFOがグローバル変数として設定されている
+        const tenantInfo = window.TENANT_INFO;
+        
+        if (!tenantInfo || !tenantInfo.id) {
+            console.error('❌ テナント情報が見つかりません');
+            return false;
+        }
+
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(reservationData)
+            body: JSON.stringify({
+                tenantId: tenantInfo.id,
+                type: 'reservation',
+                data: {
+                    name: reservationData.name,
+                    phone: reservationData.phone,
+                    email: reservationData.email,
+                    reservationType: reservationData.reservation_type,
+                    reservationDate: reservationData.reservation_date,
+                    reservationTime: reservationData.reservation_time,
+                    address: reservationData.address,
+                    requestContent: reservationData.request_content,
+                    concerns: reservationData.concerns
+                }
+            })
         });
         
         const result = await response.json();
