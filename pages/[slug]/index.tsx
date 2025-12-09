@@ -334,8 +334,11 @@ export default function ReservationPage({ tenant, error }: Props) {
         {/* フッター */}
         <footer className="footer">
           <p>&copy; {tenant.slug === 'ikeda-tatami' ? '1964' : '1958'} {tenant.tenant_name}. All rights reserved.</p>
-          {tenant.email && (
+          {tenant.email && tenant.slug !== 'ikeda-tatami' && (
             <p><a href={`https://${tenant.slug}.com/`} target="_blank" rel="noopener">公式ウェブサイト</a></p>
+          )}
+          {tenant.slug === 'ikeda-tatami' && (
+            <p><a href="http://www.ikeda-tatamiten.co.jp/" target="_blank" rel="noopener noreferrer">公式ウェブサイト</a></p>
           )}
         </footer>
       </div>

@@ -128,3 +128,27 @@ body:has([data-tenant="ikeda-tatami"]) {
     color: #8b7355 !important;
     font-size: 1rem;
 }
+
+/* フッター - 池田畳店専用テーマカラー */
+div[data-tenant="ikeda-tatami"] footer.footer,
+.container[data-tenant="ikeda-tatami"] .footer,
+[data-tenant="ikeda-tatami"] footer {
+    background: linear-gradient(135deg, #c9a869 0%, #d4b87a 100%) !important;
+    color: white !important;
+}
+
+div[data-tenant="ikeda-tatami"] footer.footer p,
+[data-tenant="ikeda-tatami"] .footer p {
+    color: white !important;
+}
+
+div[data-tenant="ikeda-tatami"] footer.footer a,
+[data-tenant="ikeda-tatami"] .footer a {
+    color: white !important;
+    text-decoration: underline;
+}
+
+div[data-tenant="ikeda-tatami"] footer.footer a:hover,
+[data-tenant="ikeda-tatami"] .footer a:hover {
+    color: #f5e6d3 !important;
+}
