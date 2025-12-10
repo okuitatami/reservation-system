@@ -265,25 +265,28 @@ let allReservationsData = [];
 // 利用可能な日付を取得
 async function loadAvailableDates() {
     try {
+        const tenantInfo = window.TENANT_INFO;
+        if (!tenantInfo || !tenantInfo.slug) {
+            console.error('テナント情報が見つかりません');
+            return;
+        }
+
         // 利用可能スロットを取得
-        const slotsResponse = await fetch('tables/available_slots?limit=1000');
+        const slotsResponse = await fetch(`/api/available-slots?tenant_slug=${tenantInfo.slug}&reservation_type=${formData.reservation_type || 'all'}`);
         const slotsData = await slotsResponse.json();
         availableSlotsData = slotsData.data || [];
         
         // 既存予約を取得
-        const reservationsResponse = await fetch('tables/reservations?limit=1000');
+        const reservationsResponse = await fetch(`/api/reservations?tenant_slug=${tenantInfo.slug}`);
         const reservationsData = await reservationsResponse.json();
         allReservationsData = (reservationsData.data || []).filter(r => r.status !== 'cancelled');
         
-        // 予約タイプでフィルター
-        const filteredSlots = availableSlotsData.filter(slot => {
-            return slot.is_available && 
-                   (slot.reservation_type === 'all' || slot.reservation_type === formData.reservation_type);
-        });
-        
         // 日付ごとにグループ化（重複を排除）
-        const dateSet = new Set(filteredSlots.map(slot => slot.date));
+        const dateSet = new Set(availableSlotsData.map(slot => slot.date));
         availableDatesCache = Array.from(dateSet);
+        
+        console.log('利用可能日数:', availableDatesCache.length);
+        console.log('利用可能スロット数:', availableSlotsData.length);
     } catch (error) {
         console.error('利用可能日取得エラー:', error);
         availableDatesCache = [];
@@ -431,13 +434,14 @@ async function loadAvailableTimeSlots(selectedDate) {
             return;
         }
         
-        // 選択された日付の利用可能スロットを取得
-        const response = await fetch(`tables/available_slots?limit=1000`);
-        const data = await response.json();
-        const allSlots = data.data || [];
-        
+        const tenantInfo = window.TENANT_INFO;
+        if (!tenantInfo || !tenantInfo.slug) {
+            console.error('テナント情報が見つかりません');
+            return;
+        }
+
         // 日付とタイプでフィルター
-        const availableSlots = allSlots.filter(slot => {
+        const availableSlots = availableSlotsData.filter(slot => {
             return slot.date === selectedDate && 
                    slot.is_available && 
                    (slot.reservation_type === 'all' || slot.reservation_type === formData.reservation_type);
@@ -453,10 +457,8 @@ async function loadAvailableTimeSlots(selectedDate) {
             return;
         }
         
-        // 既存の予約を確認
-        const reservationsResponse = await fetch(`tables/reservations?limit=1000`);
-        const reservationsData = await reservationsResponse.json();
-        const existingReservations = reservationsData.data || [];
+        // 既存の予約を確認（既にloadAvailableDatesで取得済み）
+        const existingReservations = allReservationsData;
         
         // この日付の予約済み時間を取得
         const bookedTimes = existingReservations
@@ -607,14 +609,20 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中...';
     
     try {
+        const tenantInfo = window.TENANT_INFO;
+        if (!tenantInfo || !tenantInfo.id) {
+            throw new Error('テナント情報が見つかりません');
+        }
+
         // 予約データを作成
         const reservationData = {
+            tenant_id: tenantInfo.id,
             ...formData,
             status: 'pending'
         };
         
         // データベースに保存
-        const response = await fetch('tables/reservations', {
+        const response = await fetch('/api/reservations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reservationData)
