@@ -2,13 +2,24 @@
 let supabaseClient = null;
 
 function initSupabase() {
-  if (typeof window !== 'undefined' && window.supabase) {
-    const SUPABASE_URL = 'https://wnvonblotbxhiwwzfxhx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indudm9uYmxvdGJ4aGl3d3pmeGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzNzg2ODgsImV4cCI6MjA0ODk1NDY4OH0.M8L2sPPV8bE2MXSWJnr_rBpqPz8b8WjA5yrgI0dDKQE';
+  if (typeof window !== 'undefined' && window.supabase && window.SUPABASE_CONFIG) {
+    const SUPABASE_URL = window.SUPABASE_CONFIG.url;
+    const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG.anonKey;
+    
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.error('❌ Supabase環境変数が設定されていません');
+      console.error('SUPABASE_URL:', SUPABASE_URL);
+      console.error('SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? '(設定済み)' : '(未設定)');
+      return;
+    }
+    
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     console.log('✅ Supabase クライアント初期化成功');
+    console.log('   URL:', SUPABASE_URL);
   } else {
-    console.error('❌ Supabase CDN が読み込まれていません');
+    console.error('❌ Supabase CDN または設定が読み込まれていません');
+    console.error('   window.supabase:', typeof window.supabase);
+    console.error('   window.SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
   }
 }
 
