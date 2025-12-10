@@ -45,6 +45,7 @@ export default function ReservationPage({ tenant, error }: Props) {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
         <link rel="stylesheet" href="/css/style.css" />
         {tenant.slug === 'ikeda-tatami' && <link rel="stylesheet" href="/css/ikeda-tatami-theme.css" />}
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
         <script src="/js/script.js" defer></script>
       </Head>

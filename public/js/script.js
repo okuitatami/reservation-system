@@ -1,3 +1,24 @@
+// Supabase クライアント初期化
+let supabaseClient = null;
+
+function initSupabase() {
+  if (typeof window !== 'undefined' && window.supabase) {
+    const SUPABASE_URL = 'https://wnvonblotbxhiwwzfxhx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indudm9uYmxvdGJ4aGl3d3pmeGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzNzg2ODgsImV4cCI6MjA0ODk1NDY4OH0.M8L2sPPV8bE2MXSWJnr_rBpqPz8b8WjA5yrgI0dDKQE';
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase クライアント初期化成功');
+  } else {
+    console.error('❌ Supabase CDN が読み込まれていません');
+  }
+}
+
+// ページ読み込み時にSupabaseを初期化
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSupabase);
+} else {
+  initSupabase();
+}
+
 // フォームデータを保持
 let formData = {};
 let currentStep = 1;
@@ -262,7 +283,7 @@ async function initCalendar() {
 let availableSlotsData = [];
 let allReservationsData = [];
 
-// 利用可能な日付を取得
+// 利用可能な日付を取得（Supabase直接接続版）
 async function loadAvailableDates() {
     try {
         const tenantInfo = window.TENANT_INFO;
@@ -271,24 +292,76 @@ async function loadAvailableDates() {
             return;
         }
 
+        if (!supabaseClient) {
+            console.error('Supabaseクライアントが初期化されていません');
+            return;
+        }
+
+        console.log('🔍 利用可能日を取得中...');
+        console.log('   - テナント:', tenantInfo.tenant_name, `(ID: ${tenantInfo.id})`);
+        console.log('   - 予約種別:', formData.reservation_type || 'all');
+
+        // tenantsテーブルからtenants.idを確認（デバッグ用）
+        const { data: tenantData, error: tenantError } = await supabaseClient
+            .from('tenants')
+            .select('id, tenant_name')
+            .eq('slug', tenantInfo.slug)
+            .single();
+
+        if (tenantError) {
+            console.error('❌ テナント情報取得エラー:', tenantError);
+        } else {
+            console.log('✅ テナント確認:', tenantData);
+        }
+
+        const tenantId = tenantData?.id || tenantInfo.id;
+
         // 利用可能スロットを取得
-        const slotsResponse = await fetch(`/api/available-slots?tenant_slug=${tenantInfo.slug}&reservation_type=${formData.reservation_type || 'all'}`);
-        const slotsData = await slotsResponse.json();
-        availableSlotsData = slotsData.data || [];
+        let slotsQuery = supabaseClient
+            .from('available_slots')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('is_available', true);
+        
+        // 予約種別でフィルタ（'all'以外の場合）
+        if (formData.reservation_type && formData.reservation_type !== 'all') {
+            slotsQuery = slotsQuery.eq('reservation_type', formData.reservation_type);
+        }
+        
+        const { data: slotsData, error: slotsError } = await slotsQuery;
+        
+        if (slotsError) {
+            console.error('❌ スロット取得エラー:', slotsError);
+            availableSlotsData = [];
+        } else {
+            availableSlotsData = slotsData || [];
+            console.log('✅ 利用可能スロット取得成功:', availableSlotsData.length, '件');
+        }
         
         // 既存予約を取得
-        const reservationsResponse = await fetch(`/api/reservations?tenant_slug=${tenantInfo.slug}`);
-        const reservationsData = await reservationsResponse.json();
-        allReservationsData = (reservationsData.data || []).filter(r => r.status !== 'cancelled');
+        const { data: reservationsData, error: reservationsError } = await supabaseClient
+            .from('reservations')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .neq('status', 'cancelled');
+        
+        if (reservationsError) {
+            console.error('❌ 予約取得エラー:', reservationsError);
+            allReservationsData = [];
+        } else {
+            allReservationsData = reservationsData || [];
+            console.log('✅ 既存予約取得成功:', allReservationsData.length, '件');
+        }
         
         // 日付ごとにグループ化（重複を排除）
         const dateSet = new Set(availableSlotsData.map(slot => slot.date));
         availableDatesCache = Array.from(dateSet);
         
-        console.log('利用可能日数:', availableDatesCache.length);
-        console.log('利用可能スロット数:', availableSlotsData.length);
+        console.log('📅 利用可能日数:', availableDatesCache.length);
+        console.log('🕒 利用可能スロット数:', availableSlotsData.length);
+        
     } catch (error) {
-        console.error('利用可能日取得エラー:', error);
+        console.error('❌ 利用可能日取得エラー:', error);
         availableDatesCache = [];
         availableSlotsData = [];
         allReservationsData = [];
@@ -621,14 +694,22 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
             status: 'pending'
         };
         
-        // データベースに保存
-        const response = await fetch('/api/reservations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reservationData)
-        });
+        // データベースに保存（Supabase直接接続版）
+        console.log('💾 予約データを保存中...', reservationData);
+        const { data: savedReservation, error: saveError } = await supabaseClient
+            .from('reservations')
+            .insert([reservationData])
+            .select()
+            .single();
         
-        if (response.ok) {
+        if (saveError) {
+            console.error('❌ 予約保存エラー:', saveError);
+            throw new Error('予約の登録に失敗しました');
+        }
+        
+        console.log('✅ 予約保存成功:', savedReservation);
+        
+        if (savedReservation) {
             // メール送信
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> メール送信中...';
             const emailSent = await sendEmails(reservationData);
