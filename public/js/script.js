@@ -850,7 +850,7 @@ async function sendEmails(reservationData) {
 
 // LINE通知送信（API Route経由）
 async function sendLineNotification(reservationData) {
-    const API_ENDPOINT = '/api/send-line-notification';
+    const API_ENDPOINT = '/api/line-notify';
     
     console.log('📱 LINE通知送信開始...');
     
