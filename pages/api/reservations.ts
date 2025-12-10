@@ -1,5 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Supabaseクライアントを作成
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase credentials not configured')
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // CORSヘッダーを設定
@@ -11,12 +23,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).end()
   }
 
-  if (req.method === 'GET') {
-    return handleGet(req, res)
-  } else if (req.method === 'POST') {
-    return handlePost(req, res)
-  } else {
-    return res.status(405).json({ error: 'Method not allowed' })
+  try {
+    if (req.method === 'GET') {
+      return await handleGet(req, res)
+    } else if (req.method === 'POST') {
+      return await handlePost(req, res)
+    } else {
+      return res.status(405).json({ error: 'Method not allowed' })
+    }
+  } catch (error: any) {
+    console.error('[Reservations API] Handler error:', error)
+    return res.status(500).json({ 
+      error: 'Server configuration error',
+      details: error.message
+    })
   }
 }
 
@@ -29,6 +49,8 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
 
     console.log('[Reservations API GET] Query:', { tenant_slug })
+
+    const supabase = getSupabaseClient()
 
     // テナント情報を取得
     const { data: tenant, error: tenantError } = await supabase
@@ -78,6 +100,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     if (!reservationData || !reservationData.tenant_id) {
       return res.status(400).json({ error: 'Invalid reservation data: tenant_id is required' })
     }
+
+    const supabase = getSupabaseClient()
 
     // 予約データを挿入
     const { data: reservation, error: insertError } = await supabase

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // CORSヘッダーを設定
@@ -23,6 +23,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     console.log('[Available Slots API] Query:', { tenant_slug, reservation_type })
+
+    // Supabaseクライアントを作成
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('[Available Slots API] Missing environment variables')
+      return res.status(500).json({ 
+        error: 'Server configuration error',
+        details: 'Supabase credentials not configured'
+      })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     // テナント情報を取得
     const { data: tenant, error: tenantError } = await supabase
