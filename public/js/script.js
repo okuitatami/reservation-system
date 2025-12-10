@@ -848,12 +848,13 @@ async function sendEmails(reservationData) {
     }
 }
 
-// LINE通知送信（Supabase直接接続版）
+// LINE通知送信（API Route経由）
 async function sendLineNotification(reservationData) {
+    const API_ENDPOINT = '/api/send-line-notification';
+    
     console.log('📱 LINE通知送信開始...');
     
     try {
-        // TENANT_INFOがグローバル変数として設定されている
         const tenantInfo = window.TENANT_INFO;
         
         if (!tenantInfo || !tenantInfo.id) {
@@ -861,87 +862,45 @@ async function sendLineNotification(reservationData) {
             return false;
         }
 
-        if (!supabaseClient) {
-            console.error('❌ Supabaseクライアントが初期化されていません');
-            return false;
-        }
+        console.log('📤 API呼び出し中:', API_ENDPOINT);
 
-        // テナント情報からLINE設定を取得
-        console.log('📤 LINE設定取得中...');
-        const { data: tenant, error: tenantError } = await supabaseClient
-            .from('tenants')
-            .select('line_channel_access_token, line_user_id')
-            .eq('id', tenantInfo.id)
-            .single();
-
-        if (tenantError || !tenant) {
-            console.error('❌ テナント情報取得エラー:', tenantError);
-            return false;
-        }
-
-        if (!tenant.line_channel_access_token || !tenant.line_user_id) {
-            console.log('⚠️ LINE通知が設定されていません');
-            return true; // 設定されていないだけで、エラーではない
-        }
-
-        console.log('✅ LINE設定取得成功');
-
-        // メッセージを作成
-        const typeLabels = {
-            estimate: '見積依頼',
-            workshop: 'ワークショップ',
-            visit: '見学・体験予約'
-        };
-
-        let message = '【新規予約】\n\n';
-        message += `予約種別: ${typeLabels[reservationData.reservation_type] || reservationData.reservation_type}\n`;
-        message += `お名前: ${reservationData.name || '未入力'}\n`;
-        message += `電話番号: ${reservationData.phone || '未入力'}\n`;
-        message += `メールアドレス: ${reservationData.email || '未入力'}\n`;
-        
-        if (reservationData.address) {
-            message += `住所: ${reservationData.address}\n`;
-        }
-        
-        if (reservationData.reservation_date && reservationData.reservation_time) {
-            message += `予約日時: ${reservationData.reservation_date} ${reservationData.reservation_time}\n`;
-        }
-        
-        if (reservationData.request_content) {
-            message += `依頼内容: ${reservationData.request_content}\n`;
-        }
-        
-        if (reservationData.concerns) {
-            message += `懸念点: ${reservationData.concerns}\n`;
-        }
-
-        console.log('📤 LINE API送信中...');
-        console.log('   メッセージ:', message.substring(0, 50) + '...');
-
-        // LINE APIに送信
-        const lineResponse = await fetch('https://api.line.me/v2/bot/message/push', {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${tenant.line_channel_access_token}`
             },
             body: JSON.stringify({
-                to: tenant.line_user_id,
-                messages: [
-                    {
-                        type: 'text',
-                        text: message
-                    }
-                ]
+                tenantId: tenantInfo.id,
+                type: 'reservation',
+                data: {
+                    name: reservationData.name,
+                    phone: reservationData.phone,
+                    email: reservationData.email,
+                    reservationType: reservationData.reservation_type,
+                    reservationDate: reservationData.reservation_date,
+                    reservationTime: reservationData.reservation_time,
+                    address: reservationData.address,
+                    requestContent: reservationData.request_content,
+                    concerns: reservationData.concerns
+                }
             })
         });
 
-        if (lineResponse.ok) {
-            console.log('✅ LINE通知送信成功');
+        console.log('📥 API応答:', response.status, response.statusText);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ API エラーレスポンス:', errorText);
+            return false;
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('✅ LINE通知送信成功:', result);
             return true;
         } else {
-            const errorText = await lineResponse.text();
-            console.error('❌ LINE API エラー:', lineResponse.status, errorText);
+            console.error('❌ LINE通知送信失敗:', result);
             return false;
         }
     } catch (error) {

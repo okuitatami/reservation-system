@@ -1,10 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
-
-// Supabaseクライアントを直接作成
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 interface LineNotificationRequest {
   tenantId: string
@@ -121,6 +115,18 @@ export default async function handler(
     if (!body.tenantId) {
       return res.status(400).json({ success: false, message: 'Tenant ID is required' })
     }
+
+    // Supabaseクライアントを動的にインポート
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Supabase環境変数が設定されていません')
+      return res.status(500).json({ success: false, message: 'Server configuration error' })
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     // テナント情報を取得
     const { data: tenant, error: tenantError } = await supabase
