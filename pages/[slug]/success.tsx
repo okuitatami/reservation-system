@@ -285,28 +285,26 @@ export default function SuccessPage({ tenant, error }: Props) {
               LINEが苦手な方、お急ぎの方は、お電話でもご対応いたします。
             </p>
             <p><strong>{tenant.tenant_name}</strong></p>
-            {tenant.phone && (
-              <a 
-                href={`tel:${tenant.phone.replace(/[^0-9]/g, '')}`}
-                style={{
-                  display: 'block',
-                  fontSize: '1.3rem',
-                  fontWeight: 700,
-                  color: '#3388c1',
-                  marginTop: '0.5rem',
-                  textDecoration: 'none',
-                  transition: 'color 0.3s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = '#2670a0';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = '#3388c1';
-                }}
-              >
-                <i className="fas fa-phone-alt"></i> {tenant.phone}
-              </a>
-            )}
+            <a 
+              href="tel:0828152038"
+              style={{
+                display: 'block',
+                fontSize: '1.3rem',
+                fontWeight: 700,
+                color: '#3388c1',
+                marginTop: '0.5rem',
+                textDecoration: 'none',
+                transition: 'color 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#2670a0';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#3388c1';
+              }}
+            >
+              <i className="fas fa-phone-alt"></i> 082-815-2038
+            </a>
             <p style={{fontSize: '0.85rem', color: '#888', marginTop: '0.5rem'}}>
               営業時間: 平日 9:00-18:00
             </p>

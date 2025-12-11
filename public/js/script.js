@@ -721,16 +721,8 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
         console.log('✅ 予約保存成功:', savedReservation);
         
         if (savedReservation) {
-            // メール送信
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> メール送信中...';
-            const emailSent = await sendEmails(reservationData);
-            
-            if (!emailSent) {
-                console.warn('メール送信に失敗しましたが、予約は完了しています');
-            }
-            
             // LINE通知送信
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LINE通知送信中...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中…';
             try {
                 await sendLineNotification(reservationData);
             } catch (lineError) {
