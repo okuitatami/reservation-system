@@ -334,9 +334,9 @@ async function loadAvailableDates() {
             .eq('tenant_id', tenantId)
             .eq('is_available', true);
         
-        // 予約種別でフィルタ（'all'以外の場合）
+        // 予約種別でフィルタ（'all'または指定された種別のスロットを取得）
         if (formData.reservation_type && formData.reservation_type !== 'all') {
-            slotsQuery = slotsQuery.eq('reservation_type', formData.reservation_type);
+            slotsQuery = slotsQuery.or(`reservation_type.eq.${formData.reservation_type},reservation_type.eq.all`);
         }
         
         const { data: slotsData, error: slotsError } = await slotsQuery;
