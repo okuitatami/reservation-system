@@ -737,8 +737,9 @@ document.getElementById('reservationForm').addEventListener('submit', async (e) 
                 console.warn('LINE通知に失敗しましたが、予約は完了しています', lineError);
             }
             
-            // 成功ページに遷移
-            window.location.href = 'success.html';
+            // 成功ページに遷移（テナントのslugを使用）
+            const tenantSlug = window.TENANT_INFO?.slug || 'ikeda-tatami';
+            window.location.href = `/${tenantSlug}/success`;
         } else {
             throw new Error('予約の登録に失敗しました');
         }
