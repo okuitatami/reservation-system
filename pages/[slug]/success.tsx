@@ -222,22 +222,81 @@ export default function SuccessPage({ tenant, error }: Props) {
           
           <p className="success-message">
             ご予約ありがとうございます。<br/>
-            ご入力いただいたメールアドレス宛に確認メールを送信いたしました。<br/>
-            <br/>
-            当日はどうぞよろしくお願いいたします。<br/>
-            <br/>
-            <span style={{fontSize: '0.9rem', color: '#888'}}>※内容拝見後、お電話またはメールにて確認のご連絡をさせていただく場合があります。</span>
+            担当者より2営業日以内にご連絡いたします。
           </p>
 
+          <div className="info-box" style={{background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)', border: '2px solid #4caf50'}}>
+            <h3 style={{color: '#2e7d32', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+              <i className="fab fa-line" style={{fontSize: '1.5rem'}}></i> 
+              次のステップ：LINEで簡単確認
+            </h3>
+            <p style={{fontSize: '1.05rem', lineHeight: '1.8', color: '#333', marginBottom: '1rem'}}>
+              より<strong>スムーズなやり取り</strong>のため、<br/>
+              下記のLINE公式アカウントに<strong>「お名前」</strong>を送信してください。
+            </p>
+            <div style={{background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem'}}>
+              <p style={{fontSize: '0.95rem', color: '#666', marginBottom: '0.5rem'}}>
+                📱 送信例:
+              </p>
+              <p style={{fontSize: '1.2rem', fontWeight: 700, color: '#2e7d32', padding: '0.8rem', background: '#f1f8e9', borderRadius: '6px', textAlign: 'center'}}>
+                山田太郎
+              </p>
+            </div>
+            <p style={{fontSize: '0.9rem', color: '#555', marginBottom: '1rem'}}>
+              ✨ LINEでのご連絡をご希望の方におすすめです！<br/>
+              🕐 お電話でのご連絡も可能です（どちらでもOK）
+            </p>
+            <a 
+              href="https://line.me/R/ti/p/@235stgtc" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '1rem 2rem',
+                background: '#06c755',
+                color: 'white',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(6, 199, 85, 0.3)',
+                width: '100%',
+                marginTop: '0.5rem'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#05b34a';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(6, 199, 85, 0.4)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#06c755';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 199, 85, 0.3)';
+              }}
+            >
+              <i className="fab fa-line" style={{fontSize: '1.5rem'}}></i>
+              LINE公式アカウントを開く
+            </a>
+          </div>
+
           <div className="info-box">
-            <h3><i className="fas fa-phone"></i> お問い合わせ</h3>
-            <p>ご不明な点がございましたら、お気軽にお電話ください。</p>
+            <h3><i className="fas fa-phone"></i> お電話でのお問い合わせ</h3>
+            <p style={{fontSize: '0.95rem', color: '#666', marginBottom: '0.5rem'}}>
+              LINEが苦手な方は、お電話でも対応いたします。
+            </p>
             <p><strong>{tenant.tenant_name}</strong></p>
             {tenant.phone && (
               <p style={{fontSize: '1.3rem', fontWeight: 700, color: '#3388c1', marginTop: '0.5rem'}}>
-                TEL: {tenant.phone}
+                <i className="fas fa-phone-alt"></i> {tenant.phone}
               </p>
             )}
+            <p style={{fontSize: '0.85rem', color: '#888', marginTop: '0.5rem'}}>
+              営業時間: 平日 9:00-18:00
+            </p>
           </div>
 
           <div className="button-group">

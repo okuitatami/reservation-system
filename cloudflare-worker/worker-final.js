@@ -48,6 +48,9 @@ function formatMessage(data) {
 
   let message = '【新規予約】池田畳店\n\n';
   message += '予約種別: ' + (typeLabels[data.reservationType] || data.reservationType) + '\n';
+  message += '予約日時: ' + data.reservationDate + ' ' + data.reservationTime + '\n';
+  message += '\n';
+  message += '■ お客様情報\n';
   message += 'お名前: ' + (data.name || '未入力') + '\n';
   message += '電話番号: ' + (data.phone || '未入力') + '\n';
   message += 'メールアドレス: ' + (data.email || '未入力') + '\n';
@@ -56,25 +59,35 @@ function formatMessage(data) {
     message += '住所: ' + data.address + '\n';
   }
 
-  if (data.reservationDate && data.reservationTime) {
-    message += '予約日時: ' + data.reservationDate + ' ' + data.reservationTime + '\n';
-  }
-
   if (data.requestContent) {
-    message += '依頼内容: ' + data.requestContent + '\n';
+    message += '\n';
+    message += '■ 依頼内容\n';
+    message += data.requestContent + '\n';
   }
 
   if (data.concerns) {
-    message += '懸念点: ' + data.concerns + '\n';
+    message += '\n';
+    message += '■ 懸念点\n';
+    message += data.concerns + '\n';
   }
 
   if (data.workshopType) {
-    message += 'ワークショップ種別: ' + data.workshopType + '\n';
+    message += '\n';
+    message += '■ ワークショップ\n';
+    message += '種別: ' + data.workshopType + '\n';
   }
 
   if (data.participantsAdults || data.participantsChildren) {
     message += '参加人数: 大人' + (data.participantsAdults || 0) + '名、子ども' + (data.participantsChildren || 0) + '名\n';
   }
+
+  message += '\n';
+  message += '━━━━━━━━━━━━━━━\n';
+  message += '💡 対応方法\n';
+  message += 'お客様から「' + (data.name || '未入力') + '」とLINEメッセージが届いたら、そのトークで返信してください。\n';
+  message += '\n';
+  message += 'または\n';
+  message += '📞 電話: ' + (data.phone || '未入力');
 
   return message;
 }
