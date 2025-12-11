@@ -29,8 +29,10 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   // 簡易認証（実運用では適切な認証システムを使用してください）
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: 実際のパスワード認証を実装
-    if (password === 'admin123') {
+    // テナントごとにパスワードを設定
+    const correctPassword = tenant?.slug === 'ikeda-tatami' ? 'narito1231' : 'admin123';
+    
+    if (password === correctPassword) {
       setIsAuthenticated(true)
     } else {
       alert('パスワードが正しくありません')
