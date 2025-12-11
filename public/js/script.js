@@ -848,9 +848,9 @@ async function sendEmails(reservationData) {
     }
 }
 
-// LINE通知送信（API Route経由）
+// LINE通知送信（Cloudflare Worker経由）
 async function sendLineNotification(reservationData) {
-    const API_ENDPOINT = '/api/line-notify';
+    const API_ENDPOINT = 'https://ikeda-tatami-line-notify.okuitatami.workers.dev/';
     
     console.log('📱 LINE通知送信開始...');
     
