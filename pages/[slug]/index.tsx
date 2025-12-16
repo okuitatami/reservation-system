@@ -111,7 +111,7 @@ export default function ReservationPage({ tenant, error }: Props) {
                     <div className="type-card-content">
                       <i className="fas fa-palette"></i>
                       <h3>ワークショップ</h3>
-                      <p>畳作り体験や薔薇づくり体験をご希望の方</p>
+                      <p>池田畳店での体験会をご希望の方</p>
                     </div>
                   </label>
                   <label className="type-card">
@@ -170,9 +170,38 @@ export default function ReservationPage({ tenant, error }: Props) {
                   <h3 className="section-title">ワークショップ種類</h3>
                   
                   {tenant.slug === 'ikeda-tatami' && (
-                    <div className="workshop-coming-soon">
-                      <h3>体験メニュー準備中</h3>
-                      <p>現在、体験メニューを準備しております。<br/>見学のみの予約は可能です。</p>
+                    <div className="form-group">
+                      <label className="required">体験内容</label>
+                      <div className="radio-group">
+                        <label className="radio-card">
+                          <input type="radio" name="workshop_type" value="tatami_doctor" />
+                          <div className="radio-card-content">
+                            <strong>たたみ博士になろう！</strong>
+                            <p>料金：1,000円（保護者は無料）<br/>内容：座学<br/>所要時間：30分程度</p>
+                          </div>
+                        </label>
+                        <label className="radio-card">
+                          <input type="radio" name="workshop_type" value="half_day_craftsman" />
+                          <div className="radio-card-content">
+                            <strong>半日畳職人体験</strong>
+                            <p>料金：3,000円（保護者無料）<br/>内容：畳を持ってみたり、機械を少し触って見る、手縫い体験など<br/>所要時間：1時間半前後</p>
+                          </div>
+                        </label>
+                        <label className="radio-card">
+                          <input type="radio" name="workshop_type" value="full_experience" />
+                          <div className="radio-card-content">
+                            <strong>もりもり体験会</strong>
+                            <p>料金：3,500円（保護者無料）<br/>内容：畳を持ってみたり、機械を少し触って見る、手縫い体験、座学、い草詰め<br/>所要時間：2時間程度<br/>※詰めたい草のパックは持ち帰り可能</p>
+                          </div>
+                        </label>
+                        <label className="radio-card">
+                          <input type="radio" name="workshop_type" value="mini_tatami_making" />
+                          <div className="radio-card-content">
+                            <strong>ミニ畳作り体験</strong>
+                            <p>料金：3,000円（小学4年生以上対象）<br/>内容：ミニ畳、座学<br/>所要時間：30分～60分程度<br/>※作ったミニ畳は持ち帰り可能</p>
+                          </div>
+                        </label>
+                      </div>
                     </div>
                   )}
                   
@@ -285,6 +314,13 @@ export default function ReservationPage({ tenant, error }: Props) {
               {/* ステップ3: 日時選択 */}
               <div className="form-step" data-step="3">
                 <h2 className="form-step-title">ご希望の日時を選択してください</h2>
+                <p style={{fontSize: '0.9rem', color: '#666', marginTop: '0.5rem', marginBottom: '1.5rem'}}>
+                  ※ご希望日がない場合は、
+                  <a href="https://line.me/R/ti/p/@235stgtc" target="_blank" rel="noopener noreferrer" style={{color: '#06c755', fontWeight: 'bold', textDecoration: 'none'}}>公式LINE</a>
+                  もしくはお電話（
+                  <a href="tel:0828152038" style={{color: '#3388c1', fontWeight: 'bold', textDecoration: 'none'}}>082-815-2038</a>
+                  ）にてご相談ください。
+                </p>
                 
                 <div className="form-section">
                   <div className="form-group">
