@@ -334,9 +334,9 @@ export default function ReservationPage({ tenant, error }: Props) {
                 <h2 className="form-step-title">ご希望の日時を選択してください</h2>
                 <p style={{fontSize: '0.9rem', color: '#666', marginTop: '0.5rem', marginBottom: '1.5rem'}}>
                   ※ご希望日がない場合は、
-                  <a href="https://line.me/R/ti/p/@235stgtc" target="_blank" rel="noopener noreferrer" style={{color: '#06c755', fontWeight: 'bold', textDecoration: 'none'}}>公式LINE</a>
+                  <a href="https://line.me/R/ti/p/@235stgtc" target="_blank" rel="noopener noreferrer" style={{color: '#06c755', fontWeight: 'bold', textDecoration: 'underline'}}>公式LINE</a>
                   もしくはお電話（
-                  <a href="tel:0828152038" style={{color: '#3388c1', fontWeight: 'bold', textDecoration: 'none'}}>082-815-2038</a>
+                  <a href="tel:0828152038" style={{color: '#3388c1', fontWeight: 'bold', textDecoration: 'underline'}}>082-815-2038</a>
                   ）にてご相談ください。
                 </p>
                 
