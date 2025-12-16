@@ -170,32 +170,33 @@ export default function ReservationPage({ tenant, error }: Props) {
                   <h3 className="section-title">ワークショップ種類</h3>
                   
                   {tenant.slug === 'ikeda-tatami' && (
+                    <>
                     <div className="form-group">
                       <label className="required">体験内容</label>
                       <div className="radio-group">
                         <label className="radio-card">
-                          <input type="radio" name="workshop_type" value="tatami_doctor" />
+                          <input type="radio" name="workshop_type" value="tatami_doctor" required />
                           <div className="radio-card-content">
                             <strong>たたみ博士になろう！</strong>
                             <p>料金：1,000円（保護者は無料）<br/>内容：座学<br/>所要時間：30分程度</p>
                           </div>
                         </label>
                         <label className="radio-card">
-                          <input type="radio" name="workshop_type" value="half_day_craftsman" />
+                          <input type="radio" name="workshop_type" value="half_day_craftsman" required />
                           <div className="radio-card-content">
                             <strong>半日畳職人体験</strong>
                             <p>料金：3,000円（保護者無料）<br/>内容：畳を持ってみたり、機械を少し触って見る、手縫い体験など<br/>所要時間：1時間半前後</p>
                           </div>
                         </label>
                         <label className="radio-card">
-                          <input type="radio" name="workshop_type" value="full_experience" />
+                          <input type="radio" name="workshop_type" value="full_experience" required />
                           <div className="radio-card-content">
                             <strong>もりもり体験会</strong>
                             <p>料金：3,500円（保護者無料）<br/>内容：畳を持ってみたり、機械を少し触って見る、手縫い体験、座学、い草詰め<br/>所要時間：2時間程度<br/>※詰めたい草のパックは持ち帰り可能</p>
                           </div>
                         </label>
                         <label className="radio-card">
-                          <input type="radio" name="workshop_type" value="mini_tatami_making" />
+                          <input type="radio" name="workshop_type" value="mini_tatami_making" required />
                           <div className="radio-card-content">
                             <strong>ミニ畳作り体験</strong>
                             <p>料金：3,000円（小学4年生以上対象）<br/>内容：ミニ畳、座学<br/>所要時間：30分～60分程度<br/>※作ったミニ畳は持ち帰り可能</p>
@@ -203,6 +204,23 @@ export default function ReservationPage({ tenant, error }: Props) {
                         </label>
                       </div>
                     </div>
+                    
+                    {/* 池田畳店用：参加人数 */}
+                    <div className="form-group">
+                      <label className="required">参加人数</label>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label htmlFor="participants_children">参加するお子様（人）</label>
+                          <input type="number" id="participants_children" name="participants_children" className="form-control" min="1" defaultValue="1" placeholder="1" required />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="participants_adults">保護者（人）</label>
+                          <input type="number" id="participants_adults" name="participants_adults" className="form-control" min="0" defaultValue="0" placeholder="0" />
+                        </div>
+                      </div>
+                      <p className="note-text"><i className="fas fa-info-circle"></i> 参加するお子様の人数は必須です。保護者の方の参加費は無料です。</p>
+                    </div>
+                    </>
                   )}
                   
                   {tenant.slug !== 'ikeda-tatami' && (
