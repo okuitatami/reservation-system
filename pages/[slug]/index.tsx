@@ -178,7 +178,7 @@ export default function ReservationPage({ tenant, error }: Props) {
                           <input type="radio" name="workshop_type" value="tatami_doctor" required />
                           <div className="radio-card-content">
                             <strong>たたみ博士になろう！</strong>
-                            <p>料金：1,000円（保護者は無料）<br/>内容：座学<br/>所要時間：30分程度</p>
+                            <p>料金：1,000円（保護者無料）<br/>内容：座学<br/>所要時間：30分程度</p>
                           </div>
                         </label>
                         <label className="radio-card">
@@ -210,7 +210,7 @@ export default function ReservationPage({ tenant, error }: Props) {
                       <label className="required">参加人数</label>
                       <div className="form-row">
                         <div className="form-group">
-                          <label htmlFor="participants_children">参加するお子様（人）</label>
+                          <label htmlFor="participants_children">体験参加人数</label>
                           <input type="number" id="participants_children" name="participants_children" className="form-control" min="1" defaultValue="1" placeholder="1" required />
                         </div>
                         <div className="form-group">
@@ -218,7 +218,7 @@ export default function ReservationPage({ tenant, error }: Props) {
                           <input type="number" id="participants_adults" name="participants_adults" className="form-control" min="0" defaultValue="0" placeholder="0" />
                         </div>
                       </div>
-                      <p className="note-text"><i className="fas fa-info-circle"></i> 参加するお子様の人数は必須です。保護者の方の参加費は無料です。</p>
+                      <p className="note-text"><i className="fas fa-info-circle"></i> お子様（小学6年生以下）が参加される場合は、保護者の方の参加が必須です。</p>
                     </div>
                     </>
                   )}
