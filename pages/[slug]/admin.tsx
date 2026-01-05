@@ -25,6 +25,7 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTimes, setSelectedTimes] = useState<string[]>([])
   const [selectedReservationType, setSelectedReservationType] = useState<'all' | 'estimate' | 'workshop' | 'visit'>('all')
+  const [autoDeleteMessage, setAutoDeleteMessage] = useState<string>('')
 
   // 簡易認証（実運用では適切な認証システムを使用してください）
   const handleLogin = (e: React.FormEvent) => {
@@ -44,6 +45,63 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
       fetchData()
     }
   }, [tenant, isAuthenticated, activeTab])
+
+  // 管理画面アクセス時に過去日を自動削除
+  useEffect(() => {
+    if (tenant && isAuthenticated && activeTab === 'schedule') {
+      deletePastAvailableSlots()
+    }
+  }, [tenant, isAuthenticated, activeTab])
+
+  // 過去日（昨日以前）の受付可能日を自動削除
+  const deletePastAvailableSlots = async () => {
+    if (!tenant) return
+
+    try {
+      // 今日の日付を取得（YYYY-MM-DD形式）
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const todayStr = today.toISOString().split('T')[0]
+
+      // 昨日以前のデータを取得
+      const { data: pastSlots, error: fetchError } = await supabase
+        .from('available_slots')
+        .select('*')
+        .eq('tenant_id', tenant.id)
+        .lt('date', todayStr)
+
+      if (fetchError) {
+        console.error('過去日の取得エラー:', fetchError)
+        return
+      }
+
+      if (pastSlots && pastSlots.length > 0) {
+        // 過去日を削除
+        const { error: deleteError } = await supabase
+          .from('available_slots')
+          .delete()
+          .eq('tenant_id', tenant.id)
+          .lt('date', todayStr)
+
+        if (deleteError) {
+          console.error('過去日の削除エラー:', deleteError)
+          return
+        }
+
+        // 削除件数を通知
+        const message = `過去の受付可能日 ${pastSlots.length} 件を自動削除しました`
+        setAutoDeleteMessage(message)
+        console.log(message)
+
+        // 3秒後にメッセージを非表示
+        setTimeout(() => {
+          setAutoDeleteMessage('')
+        }, 5000)
+      }
+    } catch (err) {
+      console.error('自動削除エラー:', err)
+    }
+  }
 
   const fetchData = async () => {
     if (!tenant) return
@@ -511,6 +569,24 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
             {activeTab === 'schedule' && (
               <div>
                 <h2 style={{ marginBottom: '30px' }}>受付可能日設定</h2>
+                
+                {/* 自動削除メッセージ */}
+                {autoDeleteMessage && (
+                  <div style={{
+                    background: '#e8f5e9',
+                    border: '1px solid #4caf50',
+                    color: '#2e7d32',
+                    padding: '15px 20px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <span style={{ fontSize: '20px' }}>✅</span>
+                    <span style={{ fontWeight: 'bold' }}>{autoDeleteMessage}</span>
+                  </div>
+                )}
                 
                 <div style={{
                   background: 'white',
