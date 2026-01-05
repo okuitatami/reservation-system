@@ -100,6 +100,9 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
           setAutoDeleteMessage(message)
           console.log(message)
 
+          // データを再取得して画面を更新
+          await fetchData()
+
           // 5秒後にメッセージを非表示
           setTimeout(() => {
             setAutoDeleteMessage('')
