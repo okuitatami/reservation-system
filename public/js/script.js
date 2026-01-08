@@ -843,8 +843,6 @@ async function sendEmails(reservationData) {
 
 // LINE通知送信（Cloudflare Worker経由）
 async function sendLineNotification(reservationData) {
-    const API_ENDPOINT = 'https://ikeda-tatami-line-notify.okuitatami.workers.dev/';
-    
     console.log('📱 LINE通知送信開始...');
     
     try {
@@ -855,6 +853,15 @@ async function sendLineNotification(reservationData) {
             return false;
         }
 
+        // テナントのslugに基づいてWorker URLを決定
+        const workerUrls = {
+            'ikeda-tatami': 'https://ikeda-tatami-line-notify.okuitatami.workers.dev/',
+            'okui-tatami': 'https://okui-tatami-line-notify.okuitatami.workers.dev/'
+        };
+        
+        const API_ENDPOINT = workerUrls[tenantInfo.slug] || workerUrls['ikeda-tatami'];
+        
+        console.log('🏢 テナント:', tenantInfo.slug);
         console.log('📤 API呼び出し中:', API_ENDPOINT);
 
         const response = await fetch(API_ENDPOINT, {
