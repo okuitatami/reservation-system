@@ -881,7 +881,10 @@ async function sendLineNotification(reservationData) {
                     reservationTime: reservationData.reservation_time,
                     address: reservationData.address,
                     requestContent: reservationData.request_content,
-                    concerns: reservationData.concerns
+                    concerns: reservationData.concerns,
+                    workshopType: reservationData.workshop_type,
+                    participantsChildren: reservationData.participants_children,
+                    participantsAdults: reservationData.participants_adults
                 }
             })
         });

@@ -46,8 +46,22 @@ function formatMessage(data) {
     visit: '見学・体験予約'
   };
 
+  const workshopLabels = {
+    tatami_doctor: 'たたみ博士になろう！',
+    half_day_craftsman: '半日畳職人体験',
+    morimori_experience: 'もりもり体験会',
+    mini_tatami: 'ミニ畳作り体験'
+  };
+
   let message = '【新規予約】池田畳店\n\n';
-  message += '予約種別: ' + (typeLabels[data.reservationType] || data.reservationType) + '\n';
+  
+  // 予約種別の表示（ワークショップの場合はコース名も追加）
+  if (data.reservationType === 'workshop' && data.workshopType) {
+    message += '予約種別: ワークショップ、' + (workshopLabels[data.workshopType] || data.workshopType) + '\n';
+  } else {
+    message += '予約種別: ' + (typeLabels[data.reservationType] || data.reservationType) + '\n';
+  }
+  
   message += '予約日時: ' + data.reservationDate + ' ' + data.reservationTime + '\n';
   message += '\n';
   message += '■ お客様情報\n';
@@ -57,6 +71,14 @@ function formatMessage(data) {
 
   if (data.address) {
     message += '住所: ' + data.address + '\n';
+  }
+
+  // 参加人数（ワークショップの場合）
+  if (data.participantsChildren || data.participantsAdults) {
+    message += '\n';
+    message += '■ 参加人数\n';
+    message += '体験参加: ' + (data.participantsChildren || 0) + '名\n';
+    message += '保護者: ' + (data.participantsAdults || 0) + '名\n';
   }
 
   if (data.requestContent) {
@@ -69,16 +91,6 @@ function formatMessage(data) {
     message += '\n';
     message += '■ 懸念点\n';
     message += data.concerns + '\n';
-  }
-
-  if (data.workshopType) {
-    message += '\n';
-    message += '■ ワークショップ\n';
-    message += '種別: ' + data.workshopType + '\n';
-  }
-
-  if (data.participantsAdults || data.participantsChildren) {
-    message += '参加人数: 大人' + (data.participantsAdults || 0) + '名、子ども' + (data.participantsChildren || 0) + '名\n';
   }
 
   message += '\n';
