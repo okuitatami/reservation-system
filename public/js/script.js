@@ -580,7 +580,12 @@ function displayConfirmation() {
     };
     
     const workshopLabels = {
+        // 池田畳店のワークショップ
+        tatami_doctor: 'たたみ博士になろう！',
+        half_day_craftsman: '半日畳職人体験',
+        morimori_experience: 'もりもり体験会',
         mini_tatami: 'ミニ畳作り体験',
+        // 奥井畳店のワークショップ
         rose: '畳縁で薔薇づくり体験',
         hand_sewing: '畳手縫い体験',
         mat_sewing: 'ゴザ手縫い体験'
@@ -769,7 +774,12 @@ async function sendEmails(reservationData) {
     };
     
     const workshopLabels = {
+        // 池田畳店のワークショップ
+        tatami_doctor: 'たたみ博士になろう！',
+        half_day_craftsman: '半日畳職人体験',
+        morimori_experience: 'もりもり体験会',
         mini_tatami: 'ミニ畳作り体験',
+        // 奥井畳店のワークショップ
         rose: '畳縁で薔薇づくり体験',
         hand_sewing: '畳手縫い体験',
         mat_sewing: 'ゴザ手縫い体験'
