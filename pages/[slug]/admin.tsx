@@ -26,6 +26,11 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   const [selectedTimes, setSelectedTimes] = useState<string[]>([])
   const [selectedReservationType, setSelectedReservationType] = useState<'all' | 'estimate' | 'workshop' | 'visit'>('all')
   const [autoDeleteMessage, setAutoDeleteMessage] = useState<string>('')
+  
+  // カレンダー表示用の状態
+  const [calendarMonth, setCalendarMonth] = useState(new Date())
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
+  const [showTraditionalList, setShowTraditionalList] = useState(false)
 
   // 簡易認証（実運用では適切な認証システムを使用してください）
   const handleLogin = (e: React.FormEvent) => {
@@ -218,7 +223,7 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
     }
   }
 
-  // 受付可能日を削除
+  // 受付可能日を削除（画面位置を維持）
   const deleteAvailableSlot = async (id: string) => {
     if (!confirm('この受付可能時間を削除しますか？')) return
 
@@ -230,10 +235,82 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
 
       if (error) throw error
 
-      alert('削除しました')
-      fetchData()
+      // 削除成功後、選択した日付を保持したままデータを再取得
+      const currentSelectedDate = selectedCalendarDate
+      await fetchData()
+      setSelectedCalendarDate(currentSelectedDate)
+      
+      // トーストメッセージで通知（アラートの代わり）
+      const message = document.createElement('div')
+      message.textContent = '✓ 削除しました'
+      message.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4CAF50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-weight: bold;
+      `
+      document.body.appendChild(message)
+      setTimeout(() => message.remove(), 2000)
     } catch (err) {
       alert('削除に失敗しました')
+    }
+  }
+
+  // カレンダー関連の関数
+  const generateCalendarDays = (month: Date) => {
+    const year = month.getFullYear()
+    const monthIndex = month.getMonth()
+    const firstDay = new Date(year, monthIndex, 1)
+    const lastDay = new Date(year, monthIndex + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startDayOfWeek = firstDay.getDay()
+
+    const days: Array<{ date: string; day: number; isCurrentMonth: boolean; isPast: boolean }> = []
+
+    // 前月の日付を埋める
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push({ date: '', day: 0, isCurrentMonth: false, isPast: true })
+    }
+
+    // 当月の日付
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      const dateObj = new Date(year, monthIndex, day)
+      const isPast = dateObj < today
+      days.push({ date: dateStr, day, isCurrentMonth: true, isPast })
+    }
+
+    return days
+  }
+
+  const hasAvailableSlots = (date: string) => {
+    return availableSlots.some((slot: any) => slot.date === date)
+  }
+
+  const getSlotsForDate = (date: string) => {
+    return availableSlots.filter((slot: any) => slot.date === date)
+  }
+
+  const changeMonth = (offset: number) => {
+    setCalendarMonth(prevMonth => {
+      const newMonth = new Date(prevMonth)
+      newMonth.setMonth(newMonth.getMonth() + offset)
+      return newMonth
+    })
+  }
+
+  const handleDateClick = (date: string) => {
+    if (date) {
+      setSelectedCalendarDate(selectedCalendarDate === date ? null : date)
     }
   }
 
@@ -706,11 +783,337 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                   </button>
                 </div>
 
+                {/* カレンダー形式の表示 */}
+                <div style={{
+                  background: 'white',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  marginBottom: '30px'
+                }}>
+                  <h3 style={{ marginBottom: '20px' }}>📅 予約可能日カレンダー</h3>
+                  
+                  {/* 月送りボタン */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px'
+                  }}>
+                    <button
+                      onClick={() => changeMonth(-1)}
+                      style={{
+                        padding: '8px 16px',
+                        background: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      ← 前月
+                    </button>
+                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                      {calendarMonth.getFullYear()}年 {calendarMonth.getMonth() + 1}月
+                    </span>
+                    <button
+                      onClick={() => changeMonth(1)}
+                      style={{
+                        padding: '8px 16px',
+                        background: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      翌月 →
+                    </button>
+                  </div>
+
+                  {/* カレンダーグリッド */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    gap: '4px',
+                    marginBottom: '20px'
+                  }}>
+                    {/* 曜日ヘッダー */}
+                    {['日', '月', '火', '水', '木', '金', '土'].map((day, idx) => (
+                      <div key={day} style={{
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        padding: '8px',
+                        color: idx === 0 ? '#f44336' : idx === 6 ? '#2196F3' : '#333',
+                        fontSize: '14px'
+                      }}>
+                        {day}
+                      </div>
+                    ))}
+
+                    {/* 日付セル */}
+                    {generateCalendarDays(calendarMonth).map((dayInfo, idx) => {
+                      const isToday = dayInfo.date === new Date().toISOString().split('T')[0]
+                      const hasSlots = dayInfo.date && hasAvailableSlots(dayInfo.date)
+                      const isSelected = dayInfo.date === selectedCalendarDate
+
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => handleDateClick(dayInfo.date)}
+                          style={{
+                            position: 'relative',
+                            minHeight: '44px',
+                            padding: '8px',
+                            textAlign: 'center',
+                            cursor: dayInfo.isCurrentMonth && !dayInfo.isPast ? 'pointer' : 'default',
+                            background: isSelected ? '#E3F2FD' : isToday ? '#FFF9C4' : 'transparent',
+                            border: isSelected ? '2px solid #2196F3' : '1px solid #e0e0e0',
+                            borderRadius: '4px',
+                            opacity: dayInfo.isPast || !dayInfo.isCurrentMonth ? 0.3 : 1,
+                            color: idx % 7 === 0 ? '#f44336' : idx % 7 === 6 ? '#2196F3' : '#333',
+                            fontSize: '16px',
+                            fontWeight: isToday ? 'bold' : 'normal'
+                          }}
+                        >
+                          {dayInfo.day || ''}
+                          {hasSlots && (
+                            <div style={{
+                              position: 'absolute',
+                              bottom: '4px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              width: '6px',
+                              height: '6px',
+                              borderRadius: '50%',
+                              background: '#000'
+                            }} />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* 翌月のカレンダー */}
+                  <div style={{ marginTop: '30px' }}>
+                    <h4 style={{ marginBottom: '15px', fontSize: '16px' }}>
+                      {calendarMonth.getFullYear()}年 {calendarMonth.getMonth() + 2}月
+                    </h4>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(7, 1fr)',
+                      gap: '4px'
+                    }}>
+                      {/* 曜日ヘッダー */}
+                      {['日', '月', '火', '水', '木', '金', '土'].map((day, idx) => (
+                        <div key={day} style={{
+                          textAlign: 'center',
+                          fontWeight: 'bold',
+                          padding: '8px',
+                          color: idx === 0 ? '#f44336' : idx === 6 ? '#2196F3' : '#333',
+                          fontSize: '14px'
+                        }}>
+                          {day}
+                        </div>
+                      ))}
+
+                      {/* 日付セル */}
+                      {generateCalendarDays(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1)).map((dayInfo, idx) => {
+                        const hasSlots = dayInfo.date && hasAvailableSlots(dayInfo.date)
+                        const isSelected = dayInfo.date === selectedCalendarDate
+
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => handleDateClick(dayInfo.date)}
+                            style={{
+                              position: 'relative',
+                              minHeight: '44px',
+                              padding: '8px',
+                              textAlign: 'center',
+                              cursor: dayInfo.isCurrentMonth ? 'pointer' : 'default',
+                              background: isSelected ? '#E3F2FD' : 'transparent',
+                              border: isSelected ? '2px solid #2196F3' : '1px solid #e0e0e0',
+                              borderRadius: '4px',
+                              opacity: !dayInfo.isCurrentMonth ? 0.3 : 1,
+                              color: idx % 7 === 0 ? '#f44336' : idx % 7 === 6 ? '#2196F3' : '#333',
+                              fontSize: '16px'
+                            }}
+                          >
+                            {dayInfo.day || ''}
+                            {hasSlots && (
+                              <div style={{
+                                position: 'absolute',
+                                bottom: '4px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '50%',
+                                background: '#000'
+                              }} />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 選択日の時間リスト */}
+                  {selectedCalendarDate && getSlotsForDate(selectedCalendarDate).length > 0 && (
+                    <div style={{
+                      marginTop: '30px',
+                      padding: '20px',
+                      background: '#f5f5f5',
+                      borderRadius: '8px'
+                    }}>
+                      <h4 style={{ marginBottom: '15px', fontSize: '16px' }}>
+                        {selectedCalendarDate} の予約可能時間
+                      </h4>
+                      <table style={{
+                        width: '100%',
+                        borderCollapse: 'collapse',
+                        background: 'white',
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <thead>
+                          <tr style={{ background: '#e0e0e0' }}>
+                            <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>時間</th>
+                            <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>予約種別</th>
+                            <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', width: '80px' }}>操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getSlotsForDate(selectedCalendarDate)
+                            .sort((a: any, b: any) => a.time.localeCompare(b.time))
+                            .map((slot: any) => (
+                              <tr key={slot.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+                                <td style={{ padding: '12px', fontSize: '14px' }}>{slot.time}</td>
+                                <td style={{ padding: '12px', fontSize: '14px' }}>
+                                  {slot.reservation_type === 'all' ? 'すべて' :
+                                   slot.reservation_type === 'estimate' ? '見積' :
+                                   slot.reservation_type === 'workshop' ? '体験' :
+                                   slot.reservation_type === 'visit' ? '来店' : slot.reservation_type}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <button
+                                    onClick={() => deleteAvailableSlot(slot.id)}
+                                    style={{
+                                      padding: '8px 16px',
+                                      background: '#f44336',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      fontSize: '14px',
+                                      fontWeight: 'bold',
+                                      minWidth: '60px'
+                                    }}
+                                  >
+                                    削除
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* 従来のリスト表示（折りたたみ可能） */}
                 <div style={{
                   background: 'white',
                   padding: '30px',
                   borderRadius: '8px'
                 }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setShowTraditionalList(!showTraditionalList)}
+                  >
+                    <h3 style={{ margin: 0 }}>登録済みの受付可能日時（リスト表示）</h3>
+                    <span style={{ fontSize: '24px' }}>{showTraditionalList ? '▲' : '▼'}</span>
+                  </div>
+                  
+                  {showTraditionalList && (
+                    <>
+                      {availableSlots.length === 0 ? (
+                        <p style={{ color: '#666' }}>登録されている受付可能日時がありません</p>
+                      ) : (
+                        <div style={{ display: 'grid', gap: '10px' }}>
+                          {/* 日付ごとにグループ化 */}
+                          {Object.entries(
+                            availableSlots.reduce((acc: any, slot: any) => {
+                              if (!acc[slot.date]) acc[slot.date] = []
+                              acc[slot.date].push(slot)
+                              return acc
+                            }, {})
+                          ).map(([date, slots]: [string, any]) => (
+                            <div key={date} style={{
+                              padding: '15px',
+                              border: '1px solid #e0e0e0',
+                              borderRadius: '8px'
+                            }}>
+                              <h4 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>
+                                📅 {date}
+                              </h4>
+                              <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                                gap: '8px'
+                              }}>
+                                {slots.map((slot: any) => (
+                                  <div key={slot.id} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '8px 12px',
+                                    background: '#f5f5f5',
+                                    borderRadius: '4px'
+                                  }}>
+                                    <div>
+                                      <div style={{ fontWeight: 'bold' }}>{slot.time}</div>
+                                      <div style={{ fontSize: '12px', color: '#666' }}>
+                                        {slot.reservation_type === 'all' ? 'すべて' :
+                                         slot.reservation_type === 'estimate' ? '見積' :
+                                         slot.reservation_type === 'workshop' ? '体験' :
+                                         slot.reservation_type === 'visit' ? '来店' : slot.reservation_type}
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => deleteAvailableSlot(slot.id)}
+                                      style={{
+                                        padding: '4px 8px',
+                                        background: '#f44336',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px'
+                                      }}
+                                    >
+                                      削除
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* 従来の登録済み受付可能日時（削除） */}
+                <div style={{ display: 'none' }}>
                   <h3 style={{ marginBottom: '20px' }}>登録済みの受付可能日時</h3>
                   {availableSlots.length === 0 ? (
                     <p style={{ color: '#666' }}>登録されている受付可能日時がありません</p>
