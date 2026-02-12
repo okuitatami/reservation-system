@@ -31,6 +31,7 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null)
   const [showTraditionalList, setShowTraditionalList] = useState(false)
+  const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([])
 
   // 簡易認証（実運用では適切な認証システムを使用してください）
   const handleLogin = (e: React.FormEvent) => {
@@ -311,6 +312,75 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
   const handleDateClick = (date: string) => {
     if (date) {
       setSelectedCalendarDate(selectedCalendarDate === date ? null : date)
+      // 日付が変わったらチェックボックスをクリア
+      setSelectedSlotIds([])
+    }
+  }
+
+  // チェックボックスの選択/解除
+  const toggleSlotSelection = (slotId: string) => {
+    if (selectedSlotIds.includes(slotId)) {
+      setSelectedSlotIds(selectedSlotIds.filter(id => id !== slotId))
+    } else {
+      setSelectedSlotIds([...selectedSlotIds, slotId])
+    }
+  }
+
+  // すべて選択/解除
+  const toggleAllSlots = (slots: any[]) => {
+    const slotIds = slots.map((slot: any) => slot.id)
+    if (selectedSlotIds.length === slotIds.length) {
+      // すべて選択済みの場合は解除
+      setSelectedSlotIds([])
+    } else {
+      // すべて選択
+      setSelectedSlotIds(slotIds)
+    }
+  }
+
+  // まとめて削除
+  const deleteBulkSlots = async () => {
+    if (selectedSlotIds.length === 0) {
+      alert('削除する時間を選択してください')
+      return
+    }
+
+    if (!confirm(`選択した${selectedSlotIds.length}件の受付可能時間を削除しますか？`)) return
+
+    try {
+      const { error } = await supabase
+        .from('available_slots')
+        .delete()
+        .in('id', selectedSlotIds)
+
+      if (error) throw error
+
+      // 削除成功後、選択した日付を保持したままデータを再取得
+      const currentSelectedDate = selectedCalendarDate
+      await fetchData()
+      setSelectedCalendarDate(currentSelectedDate)
+      setSelectedSlotIds([])
+      
+      // トーストメッセージで通知
+      const message = document.createElement('div')
+      message.textContent = `✓ ${selectedSlotIds.length}件を削除しました`
+      message.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4CAF50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-weight: bold;
+      `
+      document.body.appendChild(message)
+      setTimeout(() => message.remove(), 2000)
+    } catch (err) {
+      alert('削除に失敗しました')
     }
   }
 
@@ -968,9 +1038,49 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                       background: '#f5f5f5',
                       borderRadius: '8px'
                     }}>
-                      <h4 style={{ marginBottom: '15px', fontSize: '16px' }}>
-                        {selectedCalendarDate} の予約可能時間
-                      </h4>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '15px'
+                      }}>
+                        <h4 style={{ margin: 0, fontSize: '16px' }}>
+                          {selectedCalendarDate} の予約可能時間
+                        </h4>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            onClick={() => toggleAllSlots(getSlotsForDate(selectedCalendarDate))}
+                            style={{
+                              padding: '8px 16px',
+                              background: '#2196F3',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {selectedSlotIds.length === getSlotsForDate(selectedCalendarDate).length ? '全解除' : '全選択'}
+                          </button>
+                          <button
+                            onClick={deleteBulkSlots}
+                            disabled={selectedSlotIds.length === 0}
+                            style={{
+                              padding: '8px 16px',
+                              background: selectedSlotIds.length === 0 ? '#ccc' : '#f44336',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: selectedSlotIds.length === 0 ? 'not-allowed' : 'pointer',
+                              fontSize: '14px',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            まとめて削除 ({selectedSlotIds.length})
+                          </button>
+                        </div>
+                      </div>
                       <table style={{
                         width: '100%',
                         borderCollapse: 'collapse',
@@ -980,6 +1090,7 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                       }}>
                         <thead>
                           <tr style={{ background: '#e0e0e0' }}>
+                            <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', width: '50px' }}>選択</th>
                             <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>時間</th>
                             <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold' }}>予約種別</th>
                             <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', width: '80px' }}>操作</th>
@@ -990,6 +1101,18 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                             .sort((a: any, b: any) => a.time.localeCompare(b.time))
                             .map((slot: any) => (
                               <tr key={slot.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedSlotIds.includes(slot.id)}
+                                    onChange={() => toggleSlotSelection(slot.id)}
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      cursor: 'pointer'
+                                    }}
+                                  />
+                                </td>
                                 <td style={{ padding: '12px', fontSize: '14px' }}>{slot.time}</td>
                                 <td style={{ padding: '12px', fontSize: '14px' }}>
                                   {slot.reservation_type === 'all' ? 'すべて' :
