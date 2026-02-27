@@ -39,7 +39,7 @@ function mergeHeaders(base, additional) {
 /**
  * メッセージをフォーマット
  */
-function formatMessage(data) {
+function formatMessage(data, tenantSlug) {
   const typeLabels = {
     estimate: '見積依頼',
     workshop: 'ワークショップ',
@@ -53,7 +53,10 @@ function formatMessage(data) {
     mini_tatami: 'ミニ畳作り体験'
   };
 
-  let message = '【新規予約】池田畳店\n\n';
+  // テナント名を決定
+  const tenantName = tenantSlug === 'ikeda-tatami' ? '池田畳店' : '奥井畳店';
+  
+  let message = '【新規予約】' + tenantName + '\n\n';
   
   // 予約種別の表示（ワークショップの場合はコース名も追加）
   if (data.reservationType === 'workshop' && data.workshopType) {
@@ -99,7 +102,11 @@ function formatMessage(data) {
   message += 'お客様から「' + (data.name || '未入力') + '」とLINEメッセージが届いたら、そのトークで返信してください。\n';
   message += '\n';
   message += 'または\n';
-  message += '📞 電話: ' + (data.phone || '未入力');
+  message += '📞 電話: ' + (data.phone || '未入力') + '\n';
+  message += '\n';
+  message += '━━━━━━━━━━━━━━━\n';
+  message += '📋 予約管理画面\n';
+  message += 'https://reservation-system-three-murex.vercel.app/' + tenantSlug + '/admin';
 
   return message;
 }
@@ -204,7 +211,7 @@ export default {
       }
 
       // メッセージを作成
-      const message = formatMessage(body.data);
+      const message = formatMessage(body.data, tenant.slug);
 
       // LINE APIに送信
       const success = await sendLineMessage(
