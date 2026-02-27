@@ -29,7 +29,7 @@ export interface Reservation {
   phone?: string
   email?: string
   address?: string
-  workshop_type?: 'mini_tatami' | 'rose' | 'hand_sewing' | 'mat_sewing'
+  workshop_type?: 'mini_tatami' | 'rose' | 'hand_sewing' | 'mat_sewing' | 'tatami_doctor' | 'half_day_craftsman' | 'morimori_experience' | 'mini_tatami_making'
   workshop_option?: 'tacker' | 'hand_sewing' | 'onsite' | 'takeaway'
   participants_adults?: number
   participants_children?: number
