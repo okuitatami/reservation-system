@@ -583,12 +583,54 @@ export default function AdminPage({ tenant, error }: AdminPageProps) {
                             {res.status === 'pending' ? '保留中' : res.status === 'confirmed' ? '確認済み' : 'キャンセル'}
                           </span>
                         </div>
-                        <p><strong>予約種別:</strong> {res.reservation_type === 'estimate' ? '下見依頼' : res.reservation_type === 'workshop' ? '見学・体験' : '来店予約'}</p>
+                        <p><strong>予約種別:</strong> {res.reservation_type === 'estimate' ? '下見依頼' : res.reservation_type === 'workshop' ? 'ワークショップ' : '来店予約'}</p>
                         <p><strong>日時:</strong> {res.reservation_date} {res.reservation_time}</p>
+                        
+                        {/* ワークショップの詳細情報 */}
+                        {res.reservation_type === 'workshop' && res.workshop_type && (
+                          <div style={{ 
+                            background: '#E3F2FD', 
+                            padding: '15px', 
+                            borderRadius: '8px', 
+                            marginBottom: '15px',
+                            border: '1px solid #2196F3'
+                          }}>
+                            <h4 style={{ margin: '0 0 10px 0', color: '#1976D2' }}>📋 ワークショップ詳細</h4>
+                            <p style={{ margin: '5px 0' }}><strong>体験内容:</strong> {
+                              res.workshop_type === 'tatami_doctor' ? 'たたみ博士になろう！' :
+                              res.workshop_type === 'half_day_craftsman' ? '半日畳職人体験' :
+                              res.workshop_type === 'morimori_experience' ? 'もりもり体験会' :
+                              res.workshop_type === 'mini_tatami' ? 'ミニ畳作り体験' :
+                              res.workshop_type === 'mini_tatami_making' ? 'ミニ畳作り体験' :
+                              res.workshop_type === 'rose' ? '畳縁で薔薇づくり体験' :
+                              res.workshop_type === 'hand_sewing' ? '畳手縫い体験' :
+                              res.workshop_type === 'mat_sewing' ? 'ゴザ手縫い体験' :
+                              res.workshop_type
+                            }</p>
+                            {res.workshop_option && (
+                              <p style={{ margin: '5px 0' }}><strong>オプション:</strong> {
+                                res.workshop_option === 'tacker' ? 'タッカー' :
+                                res.workshop_option === 'hand_sewing' ? '手縫い' :
+                                res.workshop_option === 'onsite' ? 'その場で体験' :
+                                res.workshop_option === 'takeaway' ? '畳を持ち帰る' :
+                                res.workshop_option
+                              }</p>
+                            )}
+                            {(res.participants_children !== undefined || res.participants_adults !== undefined) && (
+                              <p style={{ margin: '5px 0' }}>
+                                <strong>参加人数:</strong> 
+                                {res.participants_children !== undefined && ` 体験参加 ${res.participants_children}名`}
+                                {res.participants_adults !== undefined && ` / 保護者 ${res.participants_adults}名`}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        
                         <p><strong>電話:</strong> {res.phone}</p>
                         <p><strong>メール:</strong> {res.email}</p>
                         {res.address && <p><strong>住所:</strong> {res.address}</p>}
                         {res.request_content && <p><strong>依頼内容:</strong> {res.request_content}</p>}
+                        {res.concerns && <p><strong>懸念点:</strong> {res.concerns}</p>}
                         <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
                           <button onClick={() => updateReservationStatus(res.id, 'confirmed')} style={{
                             padding: '8px 16px',
